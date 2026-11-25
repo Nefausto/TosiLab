@@ -497,7 +497,7 @@ p {
 }
 
 .service-card {
-  min-height: 300px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   padding: 24px;
@@ -515,24 +515,27 @@ p {
 
 .service-card.feature {
   grid-column: span 2;
-  min-height: 360px;
   background:
     linear-gradient(135deg, rgba(53, 199, 186, .12), transparent 42%),
     var(--white);
 }
 
-.service-card ul {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 16px;
-  padding: 0;
-  margin: auto 0 0;
-  list-style: none;
-  color: var(--muted);
-  font-size: 14px;
+.service-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: auto;
+  color: var(--teal-dark);
+  font-weight: 800;
 }
 
-.service-card li::before,
+.service-link:hover,
+.service-link:focus-visible {
+  text-decoration: underline;
+}
+
 .trust-list span::before {
   content: "";
   display: inline-block;
@@ -855,7 +858,7 @@ textarea:hover {
 
 .testimonial-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -875,6 +878,14 @@ blockquote {
 figcaption {
   color: var(--teal);
   font-weight: 900;
+}
+
+.testimonial-grid figcaption span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, .76);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .blog {
@@ -1089,6 +1100,44 @@ details p {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--white);
+}
+
+.agenda-admin {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.agenda-home {
+  color: var(--teal-dark);
+  text-decoration: underline;
+}
+
+.agenda-controls,
+.agenda-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+
+.agenda-list {
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.agenda-list small {
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 .floating-socials {
@@ -1457,10 +1506,6 @@ details p {
 
   .hero h1 {
     font-size: 48px;
-  }
-
-  .service-card ul {
-    grid-template-columns: 1fr;
   }
 
   .section {

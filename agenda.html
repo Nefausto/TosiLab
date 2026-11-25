@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Agenda | TosiLab</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="section agenda-admin">
+    <a class="agenda-home" href="/">Volver a TosiLab</a>
+    <h1>Agenda de masajes</h1>
+    <form data-agenda-form class="agenda-controls" method="post">
+      <label>Clave de la agenda
+        <input type="password" name="key" autocomplete="current-password" required>
+      </label>
+      <label>Día
+        <input type="date" name="day" required>
+      </label>
+      <button class="btn btn-primary" type="submit">Ver turnos</button>
+    </form>
+    <p role="status" data-agenda-status></p>
+    <ul class="agenda-list" data-agenda-list></ul>
+  </main>
+  <script src="/agenda-admin.js"></script>
+</body>
+</html>

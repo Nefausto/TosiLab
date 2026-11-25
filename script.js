@@ -63,6 +63,10 @@ function formatDate(dateValue) {
 
 const { service: bookingService, plan: bookingPlan, date: bookingDate, time: bookingTime } = bookingForm.elements;
 const bookingNote = bookingForm.querySelector("[data-booking-note]");
+const bookingSubmit = bookingForm.querySelector("button[type=submit]");
+const localPreview = location.protocol === "file:";
+let loadingSlots = 0;
+let submitting = false;
 
 function syncBookingFields() {
   const isGift = bookingService.value === "Gift Card";
@@ -71,19 +75,57 @@ function syncBookingFields() {
 
   bookingPlan.disabled = !showPlan;
   bookingPlan.closest("[data-booking-plan]").hidden = !showPlan;
-  bookingDate.disabled = isGift;
-  bookingTime.disabled = isGift;
-  bookingDate.closest("[data-booking-schedule]").hidden = isGift;
+  bookingDate.disabled = isGift || localPreview;
+  bookingDate.required = !bookingDate.disabled;
+  bookingTime.disabled = bookingDate.disabled || bookingTime.options.length < 2;
+  bookingTime.required = !isGift && !localPreview;
+  bookingDate.closest("[data-booking-schedule]").hidden = bookingDate.disabled;
+  bookingSubmit.textContent = isGift || localPreview ? "Consultar por WhatsApp" : "Solicitar turno por WhatsApp";
   bookingNote.textContent = isGift
     ? "Consultá valores y opciones de entrega por WhatsApp."
-    : "El turno se confirma por WhatsApp según disponibilidad.";
+    : localPreview
+      ? "La agenda en vivo está disponible en el sitio servido en línea."
+      : "El horario se guarda por 30 minutos mientras coordinás por WhatsApp.";
 }
 
 const today = new Date();
-bookingDate.min = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, "0"),
-  String(today.getDate()).padStart(2, "0")].join("-");
-bookingService.addEventListener("change", syncBookingFields);
-window.addEventListener("pageshow", syncBookingFields);
+const agendaDate = new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+bookingDate.min = agendaDate.format(today);
+bookingDate.max = agendaDate.format(new Date(+today + 30 * 86400000));
+
+async function loadBookingSlots() {
+  const request = ++loadingSlots;
+  const day = bookingDate.value;
+  bookingTime.replaceChildren(new Option(day ? "Buscando horarios…" : "Elegí primero un día", ""));
+  bookingTime.disabled = true;
+  if (!day || bookingDate.disabled) return;
+  try {
+    const response = await fetch("/api/agenda/availability?day=" + encodeURIComponent(day));
+    if (!response.ok) throw new Error("Agenda unavailable");
+    const { available } = await response.json();
+    if (request !== loadingSlots || bookingDate.disabled) return;
+    bookingTime.replaceChildren(new Option(available.length ? "Elegí un horario" : "Sin horarios libres", ""),
+      ...available.map(time => new Option(time, time)));
+    bookingTime.disabled = !available.length;
+    bookingNote.textContent = available.length
+      ? "El horario se guarda por 30 minutos mientras coordinás por WhatsApp."
+      : "No quedan horarios libres para ese día. Probá otra fecha.";
+  } catch {
+    if (request !== loadingSlots || bookingDate.disabled) return;
+    bookingTime.replaceChildren(new Option("Agenda no disponible", ""));
+    bookingNote.textContent = "No pudimos consultar los horarios. También podés consultar directamente por WhatsApp.";
+  }
+}
+
+bookingDate.addEventListener("change", loadBookingSlots);
+bookingService.addEventListener("change", () => {
+  syncBookingFields();
+  if (bookingDate.value && !bookingDate.disabled) loadBookingSlots();
+});
+window.addEventListener("pageshow", () => {
+  syncBookingFields();
+  if (bookingDate.value && !bookingDate.disabled) loadBookingSlots();
+});
 syncBookingFields();
 
 function buildWhatsAppMessage() {
@@ -111,9 +153,40 @@ function buildWhatsAppMessage() {
   return lines.join("\n");
 }
 
-bookingForm.addEventListener("submit", (event) => {
+bookingForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const message = buildWhatsAppMessage();
+  if (submitting) return;
+  let message = buildWhatsAppMessage();
+  if (bookingService.value !== "Gift Card" && !localPreview) {
+    if (!bookingTime.value || bookingTime.disabled) {
+      bookingNote.textContent = "Elegí un día y un horario disponible para solicitar el turno.";
+      return;
+    }
+    submitting = true;
+    bookingSubmit.disabled = true;
+    try {
+      const response = await fetch("/api/agenda/hold", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ day: bookingDate.value, time: bookingTime.value })
+      });
+      if (!response.ok) {
+        await loadBookingSlots();
+        bookingNote.textContent = response.status === 409
+          ? "Ese horario ya no está libre. Elegí otro."
+          : "No pudimos guardar el horario. Probá de nuevo o consultá por WhatsApp.";
+        return;
+      }
+      const { id } = await response.json();
+      message += "\nCódigo de turno: " + id;
+      bookingNote.textContent = "Horario guardado por 30 minutos. Enviá el mensaje para coordinar la confirmación.";
+    } catch {
+      bookingNote.textContent = "No pudimos conectar con la agenda. Probá de nuevo.";
+      return;
+    } finally {
+      submitting = false;
+      bookingSubmit.disabled = false;
+    }
+  }
   window.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 });
 
@@ -121,7 +194,7 @@ document.querySelectorAll("[data-booking-choice]").forEach((link) => {
   link.addEventListener("click", (event) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     bookingService.value = link.dataset.bookingChoice;
-    syncBookingFields();
+    bookingService.dispatchEvent(new Event("change"));
     bookingService.focus({ preventScroll: true });
   });
 });
