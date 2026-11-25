@@ -862,6 +862,17 @@ textarea:hover {
   gap: 16px;
 }
 
+.testimonials-link {
+  gap: 8px;
+  margin-top: 24px;
+  text-align: center;
+}
+
+.testimonials-link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 4px;
+}
+
 figure {
   margin: 0;
   padding: 24px;
@@ -1091,6 +1102,17 @@ details p {
 
 .location-header p {
   margin: 0;
+}
+
+.location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
+
+.location-actions .btn {
+  text-align: center;
 }
 
 .location-map {
