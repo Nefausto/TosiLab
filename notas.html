@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101820">
+    <title>Cuaderno visual | Notas, PDF e imagenes</title>
+    <link rel="stylesheet" href="notas.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="notes-panel" aria-label="Notas">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Cuaderno visual</p>
+            <h1>Notas</h1>
+          </div>
+          <button class="icon-button" type="button" data-new-note title="Nueva nota" aria-label="Nueva nota">+</button>
+        </div>
+
+        <label class="search-box">
+          <span>Buscar</span>
+          <input type="search" data-search placeholder="Titulo, etiqueta o texto">
+        </label>
+
+        <div class="notes-list" data-notes-list></div>
+      </aside>
+
+      <section class="workspace" aria-label="Editor y documentos">
+        <header class="topbar">
+          <div class="document-actions">
+            <label class="file-button">
+              <input type="file" data-file-input accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.ppt,.pptx,image/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+              Abrir PDF, imagen o PPT
+            </label>
+            <button type="button" data-paste-image>Copiar imagen pegada</button>
+            <button type="button" data-clear-document>Limpiar documento</button>
+          </div>
+
+          <div class="drawing-tools" aria-label="Herramientas de dibujo">
+            <button class="tool is-active" type="button" data-tool="pen">Lapiz</button>
+            <button class="tool" type="button" data-tool="marker">Marcador</button>
+            <button class="tool" type="button" data-tool="eraser">Borrador</button>
+            <label class="color-tool">
+              <span>Color</span>
+              <input type="color" data-color value="#1d4ed8">
+            </label>
+            <label class="range-tool">
+              <span>Grosor</span>
+              <input type="range" data-size min="2" max="36" value="6">
+            </label>
+            <button type="button" data-undo>Deshacer</button>
+            <button type="button" data-clear-canvas>Limpiar dibujo</button>
+          </div>
+        </header>
+
+        <div class="content-grid">
+          <section class="editor-card" aria-label="Editor de nota">
+            <input class="note-title" data-title placeholder="Titulo de la nota">
+            <input class="note-tags" data-tags placeholder="Etiquetas separadas por coma">
+            <textarea class="note-body" data-body placeholder="Escribe tus ideas, resumenes, pendientes o comentarios del documento..."></textarea>
+            <div class="note-footer">
+              <span data-save-state>Guardado local</span>
+              <button type="button" class="danger" data-delete-note>Eliminar nota</button>
+            </div>
+          </section>
+
+          <section class="reader-card" aria-label="Documento con dibujo">
+            <div class="reader-head">
+              <div>
+                <p class="kicker">Documento</p>
+                <h2 data-document-title>Sin archivo abierto</h2>
+              </div>
+              <span data-document-type>PDF, imagen o PPT</span>
+            </div>
+
+            <div class="reader-stage" data-reader-stage>
+              <div class="empty-state" data-empty-state>
+                <strong>Abre un PDF o una imagen para dibujar encima.</strong>
+                <span>Tambien puedes pegar una imagen desde el portapapeles con Ctrl+V.</span>
+                <small>Para PowerPoint, esta primera version lo carga como archivo de trabajo. Para verlo perfecto, conviene exportarlo a PDF y abrir ese PDF aca.</small>
+              </div>
+              <div class="pdf-viewer" data-pdf-viewer>
+                <object class="pdf-object" data-pdf-object type="application/pdf">
+                  <p>No se pudo mostrar el PDF en esta vista.</p>
+                </object>
+                <a class="pdf-fallback" data-pdf-link href="#" target="_blank" rel="noreferrer">Abrir PDF en otra pestaña</a>
+              </div>
+              <img class="image-preview" data-image-preview alt="">
+              <div class="ppt-placeholder" data-ppt-placeholder>
+                <strong>PowerPoint cargado</strong>
+                <span>La previsualizacion fiel de .ppt/.pptx necesita conversion a PDF o imagenes. Puedes tomar notas y preparar anotaciones aca.</span>
+              </div>
+              <canvas data-canvas aria-label="Capa de dibujo"></canvas>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="notas.js"></script>
+  </body>
+</html>
